@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { writeFile } from "fs/promises";
 import crypto from "crypto";
 import path from "path";
-import { writeFile } from "fs";
+
 
 
 const DATA_FILE = path.join("data", "links.json");
@@ -32,6 +32,10 @@ const loadLinks = async () =>{
     }
 };
 
+const saveLinks=async (links)=>{
+    await writeFile(DATA_FILE, JSON.stringify(links));
+}
+
 const server = createServer(async(req, res) => {
     if (req.method === "GET") {
         if (req.url === "/") {
@@ -39,13 +43,7 @@ const server = createServer(async(req, res) => {
         } else if (req.url === "/style.css") {
                 return serveFile(res, path.join("public", "style.css"), "text/css");
             }
-            else {
-                res.writeHead(404, { "Content-Type": "text/plain" });
-                res.end("404 - Page Not Found");
-            }
-        } else {
-            res.writeHead(405, { "Content-Type": "text/plain" });
-            res.end("405 - Method Not Allowed");
+            
         }
 
         if(req.method === "POST" && req.url === "/shorten"){
@@ -54,9 +52,9 @@ const server = createServer(async(req, res) => {
 
             let body="";
             req.on("data", (chunk)=>{
-                body = body+chunk;
-            });
-            req.on("end", ()=>{
+                body += chunk;
+        });
+            req.on("end", async ()=>{
                 console.log(body);
                 const {url, shortCode} = JSON.parse(body);
 
@@ -70,6 +68,12 @@ const server = createServer(async(req, res) => {
                     res.writeHead(400, {"Content-Type": "text/plane"});
                     return res.end("Short code already exists. Please choose another.");
                 }
+                links[finalShortCode] = url;
+
+                await saveLinks(links);
+
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end(JSON.stringify({success:true, shortCode:finalShortCode}));
 
             });
         }
