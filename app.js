@@ -42,6 +42,11 @@ const server = createServer(async(req, res) => {
             return serveFile(res, path.join("public", "index.html"), "text/html");
         } else if (req.url === "/style.css") {
                 return serveFile(res, path.join("public", "style.css"), "text/css");
+            }else if(req.url == "/links"){
+                const links = await loadLinks();
+
+                res.writeHead(200, {"Content-Type":"application/json"});
+                return res.end(JSON.stringify(links));
             }
             
         }
