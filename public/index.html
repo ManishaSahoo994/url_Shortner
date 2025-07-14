@@ -37,8 +37,9 @@
 
               for(const[shortCode, url] of Object.entries(links)){
                 const li = document.createElement('li');
+                const truncatedURL = url.length >= 30 ? `${url.slice(0,30)}...`: url;
                 li.innerHTML = `<a href="/${shortCode}" target="blank">
-                    ${window.location.origin}/${shortCode}</a> - ${url}`
+                    ${window.location.origin}/${shortCode}</a> - ${truncatedURL}`
                     list.appendChild(li);
               }
         };

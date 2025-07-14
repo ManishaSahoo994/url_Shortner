@@ -3,6 +3,7 @@ import { readFile } from "fs/promises";
 import { writeFile } from "fs/promises";
 import crypto from "crypto";
 import path from "path";
+import { link } from "fs";
 
 
 
@@ -47,6 +48,17 @@ const server = createServer(async(req, res) => {
 
                 res.writeHead(200, {"Content-Type":"application/json"});
                 return res.end(JSON.stringify(links));
+            }else{
+                const links = await loadLinks();
+                const shortCode=req.url.slice(1);
+                console.log("links red. ",req.url);
+                if(links[shortCode]){
+                    res.writeHead(302, {location: links[shortCode]});
+                    return res.end();
+                }
+
+                res.writeHead(404, {"Content-Type": "text/plain"});
+                    return res.end("Shortened URL is not found.");
             }
             
         }
